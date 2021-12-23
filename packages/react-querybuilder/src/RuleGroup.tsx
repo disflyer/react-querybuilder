@@ -1,9 +1,7 @@
-import { Fragment, MouseEvent as ReactMouseEvent, useRef } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
-import { dndTypes, standardClassnames } from './defaults';
-import { InlineCombinator } from './InlineCombinator';
-import type { DraggedItem, RuleGroupProps } from './types';
-import { c, getParentPath, getValidationClassNames, isAncestor, pathsAreEqual } from './utils';
+import { Fragment, MouseEvent as ReactMouseEvent } from 'react';
+import { standardClassnames } from './defaults';
+import type { RuleGroupProps } from './types';
+import { c, getValidationClassNames } from './utils';
 
 export const RuleGroup = ({
   id,
@@ -13,7 +11,6 @@ export const RuleGroup = ({
   translations,
   schema,
   disabled,
-  not,
   context,
 }: RuleGroupProps) => {
   const {
@@ -22,73 +19,15 @@ export const RuleGroup = ({
     controls,
     createRule,
     createRuleGroup,
-    independentCombinators,
     onGroupAdd,
     onGroupRemove,
     onPropChange,
     onRuleAdd,
-    moveRule,
-    showCombinatorsBetweenRules,
-    showNotToggle,
-    showCloneButtons,
-    updateIndependentCombinator,
     validationMap,
   } = schema;
 
-  const previewRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<HTMLSpanElement>(null);
-  const dropRef = useRef<HTMLDivElement>(null);
-  const [{ isDragging, dragMonitorId }, drag, preview] = useDrag(
-    () => ({
-      type: dndTypes.ruleGroup,
-      item: (): DraggedItem => ({ path }),
-      collect: monitor => ({
-        isDragging: !disabled && monitor.isDragging(),
-        dragMonitorId: monitor.getHandlerId(),
-      }),
-    }),
-    [disabled, path]
-  );
-  const [{ isOver, dropMonitorId }, drop] = useDrop(
-    () => ({
-      accept: [dndTypes.rule, dndTypes.ruleGroup],
-      canDrop: (item: DraggedItem) => {
-        if (disabled) return false;
-        const parentItemPath = getParentPath(item.path);
-        const itemIndex = item.path[item.path.length - 1];
-        // Don't allow drop if 1) item is ancestor of drop target,
-        // 2) item is first child and is dropped on its own group header,
-        // or 3) the group is dropped on itself
-        return !(
-          isAncestor(item.path, path) ||
-          (pathsAreEqual(path, parentItemPath) && itemIndex === 0) ||
-          pathsAreEqual(path, item.path)
-        );
-      },
-      collect: monitor => ({
-        isOver: monitor.canDrop() && monitor.isOver(),
-        dropMonitorId: monitor.getHandlerId(),
-      }),
-      drop: (item: DraggedItem, _monitor) => !disabled && moveRule(item.path, [...path, 0]),
-    }),
-    [disabled, moveRule, path]
-  );
-  if (path.length > 0) {
-    drag(dragRef);
-    preview(previewRef);
-  }
-  drop(dropRef);
-
   const onCombinatorChange = (value: any) => {
     onPropChange('combinator', value, path);
-  };
-
-  const onIndependentCombinatorChange = (value: any, index: number) => {
-    updateIndependentCombinator(value, path.concat([index]));
-  };
-
-  const onNotToggleChange = (checked: boolean) => {
-    onPropChange('not', checked, path);
   };
 
   const addRule = (event: ReactMouseEvent) => {
@@ -107,14 +46,6 @@ export const RuleGroup = ({
     onGroupAdd(newGroup, path);
   };
 
-  const cloneGroup = (event: ReactMouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const newPath = [...getParentPath(path), path[path.length - 1] + 1];
-    moveRule(path, newPath, true);
-  };
-
   const removeGroup = (event: ReactMouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -126,68 +57,16 @@ export const RuleGroup = ({
 
   const validationResult = validationMap[id ?? /* istanbul ignore next */ ''];
   const validationClassName = getValidationClassNames(validationResult);
-  const dndDragging = isDragging ? standardClassnames.dndDragging : '';
-  const dndOver = isOver ? standardClassnames.dndOver : '';
-  const outerClassName = c(
-    standardClassnames.ruleGroup,
-    classNames.ruleGroup,
-    validationClassName,
-    dndDragging
-  );
+  const outerClassName = c(standardClassnames.ruleGroup, classNames.ruleGroup, validationClassName);
 
   return (
     <div
-      ref={previewRef}
       className={outerClassName}
       data-testid="rule-group"
-      data-dragmonitorid={dragMonitorId}
-      data-dropmonitorid={dropMonitorId}
       data-rule-group-id={id}
       data-level={level}
       data-path={JSON.stringify(path)}>
-      <div ref={dropRef} className={c(standardClassnames.header, classNames.header, dndOver)}>
-        {level > 0 && (
-          <controls.dragHandle
-            ref={dragRef}
-            level={level}
-            path={path}
-            title={translations.dragHandle.title}
-            label={translations.dragHandle.label}
-            className={c(standardClassnames.dragHandle, classNames.dragHandle)}
-            disabled={disabled}
-            context={context}
-            validation={validationResult}
-          />
-        )}
-        {!showCombinatorsBetweenRules && !independentCombinators && (
-          <controls.combinatorSelector
-            options={combinators}
-            value={combinator}
-            title={translations.combinators.title}
-            className={c(standardClassnames.combinators, classNames.combinators)}
-            handleOnChange={onCombinatorChange}
-            rules={rules}
-            level={level}
-            path={path}
-            disabled={disabled}
-            context={context}
-            validation={validationResult}
-          />
-        )}
-        {showNotToggle && (
-          <controls.notToggle
-            className={c(standardClassnames.notToggle, classNames.notToggle)}
-            title={translations.notToggle.title}
-            label={translations.notToggle.label}
-            checked={not}
-            handleOnChange={onNotToggleChange}
-            level={level}
-            disabled={disabled}
-            path={path}
-            context={context}
-            validation={validationResult}
-          />
-        )}
+      <div className={c(standardClassnames.header, classNames.header)}>
         <controls.addRuleAction
           label={translations.addRule.label}
           title={translations.addRule.title}
@@ -212,20 +91,6 @@ export const RuleGroup = ({
           context={context}
           validation={validationResult}
         />
-        {showCloneButtons && path.length >= 1 && (
-          <controls.cloneGroupAction
-            label={translations.cloneRuleGroup.label}
-            title={translations.cloneRuleGroup.title}
-            className={c(standardClassnames.cloneGroup, classNames.cloneGroup)}
-            handleOnClick={cloneGroup}
-            rules={rules}
-            level={level}
-            path={path}
-            disabled={disabled}
-            context={context}
-            validation={validationResult}
-          />
-        )}
         {path.length >= 1 && (
           <controls.removeGroupAction
             label={translations.removeGroup.label}
@@ -242,73 +107,57 @@ export const RuleGroup = ({
         )}
       </div>
       <div className={c(standardClassnames.body, classNames.body)}>
-        {rules.map((r, idx) => {
-          const thisPath = path.concat([idx]);
-          return (
-            <Fragment key={thisPath.join('-')}>
-              {idx > 0 && !independentCombinators && showCombinatorsBetweenRules && (
-                <InlineCombinator
-                  options={combinators}
-                  value={combinator}
-                  title={translations.combinators.title}
-                  className={c(standardClassnames.combinators, classNames.combinators)}
-                  handleOnChange={onCombinatorChange}
-                  rules={rules}
-                  level={level}
-                  context={context}
-                  validation={validationResult}
-                  component={controls.combinatorSelector}
-                  moveRule={moveRule}
-                  path={thisPath}
-                  disabled={disabled}
-                  independentCombinators={independentCombinators}
-                />
-              )}
-              {typeof r === 'string' ? (
-                <InlineCombinator
-                  options={combinators}
-                  value={r}
-                  title={translations.combinators.title}
-                  className={c(standardClassnames.combinators, classNames.combinators)}
-                  handleOnChange={val => onIndependentCombinatorChange(val, idx)}
-                  rules={rules}
-                  level={level}
-                  context={context}
-                  validation={validationResult}
-                  component={controls.combinatorSelector}
-                  moveRule={moveRule}
-                  path={thisPath}
-                  disabled={disabled}
-                  independentCombinators={independentCombinators}
-                />
-              ) : 'rules' in r ? (
-                <controls.ruleGroup
-                  id={r.id}
-                  schema={schema}
-                  path={thisPath}
-                  combinator={'combinator' in r ? r.combinator : undefined}
-                  translations={translations}
-                  rules={r.rules}
-                  disabled={disabled}
-                  not={!!r.not}
-                  context={context}
-                />
-              ) : (
-                <controls.rule
-                  id={r.id!}
-                  field={r.field}
-                  value={r.value}
-                  operator={r.operator}
-                  schema={schema}
-                  path={thisPath}
-                  disabled={disabled}
-                  translations={translations}
-                  context={context}
-                />
-              )}
-            </Fragment>
-          );
-        })}
+        <div>
+          <div className="ruleGroup-combinators-wrapper">
+            <controls.combinatorSelector
+              options={combinators}
+              value={combinator}
+              title={translations.combinators.title}
+              className={c(standardClassnames.combinators, classNames.combinators)}
+              handleOnChange={onCombinatorChange}
+              rules={rules}
+              level={level}
+              path={path}
+              disabled={disabled}
+              context={context}
+              validation={validationResult}
+            />
+          </div>
+        </div>
+        <div>
+          {rules.map((r, idx) => {
+            const thisPath = path.concat([idx]);
+            return (
+              <Fragment key={thisPath.join('-')}>
+                {'rules' in r ? (
+                  <controls.ruleGroup
+                    id={r.id}
+                    schema={schema}
+                    path={thisPath}
+                    combinator={'combinator' in r ? r.combinator : undefined}
+                    translations={translations}
+                    rules={r.rules}
+                    disabled={disabled}
+                    not={!!r.not}
+                    context={context}
+                  />
+                ) : (
+                  <controls.rule
+                    id={r.id!}
+                    field={r.field}
+                    value={r.value}
+                    operator={r.operator}
+                    schema={schema}
+                    path={thisPath}
+                    disabled={disabled}
+                    translations={translations}
+                    context={context}
+                  />
+                )}
+              </Fragment>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -60,10 +60,3 @@ export interface ParameterizedNamedSQL {
   sql: string;
   params: { [p: string]: any };
 }
-
-export interface ParseSQLOptions {
-  independentCombinators?: boolean;
-  paramPrefix?: string;
-  params?: any[] | { [p: string]: any };
-  listsAsArrays?: boolean;
-}

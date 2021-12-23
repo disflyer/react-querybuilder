@@ -1,7 +1,5 @@
 import produce, { enableES5 } from 'immer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
   defaultCombinators,
   defaultControlClassnames,
@@ -9,7 +7,6 @@ import {
   defaultFields,
   defaultOperators,
   defaultTranslations,
-  standardClassnames,
 } from './defaults';
 import type {
   Field,
@@ -21,12 +18,10 @@ import type {
   Schema,
 } from './types';
 import {
-  c,
   findPath,
   generateID,
   getCommonAncestorPath,
   getParentPath,
-  isRuleGroup,
   pathsAreEqual,
   prepareRule,
   prepareRuleGroup,
@@ -79,7 +74,6 @@ const QueryBuilderImpl = <RG extends RuleGroupType | RuleGroupTypeIC = RuleGroup
   resetOnOperatorChange = false,
   autoSelectField = true,
   addRuleToNewGroups = false,
-  enableDragAndDrop = false,
   independentCombinators,
   disabled,
   validator,
@@ -481,7 +475,6 @@ const QueryBuilderImpl = <RG extends RuleGroupType | RuleGroupTypeIC = RuleGroup
     onRuleRemove: onRuleOrGroupRemove,
     onGroupRemove: onRuleOrGroupRemove,
     onPropChange,
-    isRuleGroup,
     controls: { ...defaultControlElements, ...controlElements },
     getOperators: getOperatorsMain,
     getValueEditorType: getValueEditorTypeMain,
@@ -494,46 +487,23 @@ const QueryBuilderImpl = <RG extends RuleGroupType | RuleGroupTypeIC = RuleGroup
     showCloneButtons,
     autoSelectField,
     addRuleToNewGroups,
-    enableDragAndDrop,
     independentCombinators: !!independentCombinators,
     validationMap,
   };
 
-  const className = useMemo(
-    () =>
-      c(
-        standardClassnames.queryBuilder,
-        schema.classNames.queryBuilder,
-        typeof validationResult === 'boolean'
-          ? validationResult
-            ? standardClassnames.valid
-            : standardClassnames.invalid
-          : ''
-      ),
-    [schema.classNames.queryBuilder, validationResult]
-  );
-
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div
-        className={className}
-        data-dnd={enableDragAndDrop ? 'enabled' : 'disabled'}
-        data-inlinecombinators={
-          independentCombinators || showCombinatorsBetweenRules ? 'enabled' : 'disabled'
-        }>
-        <schema.controls.ruleGroup
-          translations={{ ...defaultTranslations, ...translations }}
-          rules={root.rules}
-          combinator={'combinator' in root ? root.combinator : undefined}
-          schema={schema}
-          id={root.id}
-          path={[]}
-          not={!!root.not}
-          disabled={disabled}
-          context={context}
-        />
-      </div>
-    </DndProvider>
+    <div>
+      <schema.controls.ruleGroup
+        translations={{ ...defaultTranslations, ...translations }}
+        rules={root.rules}
+        combinator={'combinator' in root ? root.combinator : undefined}
+        schema={schema}
+        id={root.id}
+        path={[]}
+        disabled={disabled}
+        context={context}
+      />
+    </div>
   );
 };
 

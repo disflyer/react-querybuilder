@@ -1,4 +1,4 @@
-import { ActionElement, DragHandle, NotToggle, ValueEditor, ValueSelector } from './controls';
+import { ActionElement, NotToggle, ValueEditor, ValueSelector } from './controls';
 import { Rule } from './Rule';
 import { RuleGroup } from './RuleGroup';
 import type {
@@ -53,10 +53,6 @@ export const defaultTranslations: Translations = {
     label: '⧉',
     title: 'Clone group',
   },
-  dragHandle: {
-    label: '⁞⁞',
-    title: 'Drag handle',
-  },
 };
 
 export const defaultOperators: DefaultOperator[] = [
@@ -107,7 +103,6 @@ export const standardClassnames = {
   invalid: 'queryBuilder-invalid',
   dndDragging: 'dndDragging',
   dndOver: 'dndOver',
-  dragHandle: 'queryBuilder-dragHandle',
 } as const;
 
 export const defaultControlClassnames: Classnames = {
@@ -127,7 +122,6 @@ export const defaultControlClassnames: Classnames = {
   operators: '',
   value: '',
   removeRule: '',
-  dragHandle: '',
 };
 
 export const defaultControlElements: Controls = {
@@ -144,7 +138,6 @@ export const defaultControlElements: Controls = {
   notToggle: NotToggle,
   ruleGroup: RuleGroup,
   rule: Rule,
-  dragHandle: DragHandle,
 };
 
 export const groupInvalidReasons = {

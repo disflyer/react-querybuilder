@@ -90,19 +90,12 @@ export interface ValueEditorProps extends SelectorEditorProps {
   value?: any;
 }
 
-export interface DragHandleProps extends CommonSubComponentProps {
-  label?: string;
-}
-
 export interface Controls {
   addGroupAction: React.ComponentType<ActionWithRulesProps>;
   addRuleAction: React.ComponentType<ActionWithRulesProps>;
   cloneGroupAction: React.ComponentType<ActionWithRulesProps>;
   cloneRuleAction: React.ComponentType<ActionProps>;
   combinatorSelector: React.ComponentType<CombinatorSelectorProps>;
-  dragHandle: React.ForwardRefExoticComponent<
-    DragHandleProps & React.RefAttributes<HTMLSpanElement>
-  >;
   fieldSelector: React.ComponentType<FieldSelectorProps>;
   notToggle: React.ComponentType<NotToggleProps>;
   operatorSelector: React.ComponentType<OperatorSelectorProps>;
@@ -178,10 +171,6 @@ export interface Classnames {
    * `<label>` on the "not" toggle
    */
   notToggle: string;
-  /**
-   * `<span>` handle for dragging rules/groups
-   */
-  dragHandle: string;
 }
 
 export interface Schema {
@@ -196,7 +185,6 @@ export interface Schema {
   getValueEditorType(field: string, operator: string): ValueEditorType;
   getInputType(field: string, operator: string): string | null;
   getValues(field: string, operator: string): NameLabelPair[];
-  isRuleGroup(ruleOrGroup: RuleType | RuleGroupTypeAny): ruleOrGroup is RuleGroupTypeAny;
   onGroupAdd(group: RuleGroupTypeAny, parentPath: number[]): void;
   onGroupRemove(path: number[]): void;
   onPropChange(
@@ -213,7 +201,6 @@ export interface Schema {
   showCloneButtons: boolean;
   autoSelectField: boolean;
   addRuleToNewGroups: boolean;
-  enableDragAndDrop: boolean;
   validationMap: ValidationMap;
   independentCombinators: boolean;
 }
@@ -256,10 +243,6 @@ export interface Translations {
     title: string;
   };
   cloneRuleGroup: {
-    label: string;
-    title: string;
-  };
-  dragHandle: {
     label: string;
     title: string;
   };
