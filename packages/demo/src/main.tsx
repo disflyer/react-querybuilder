@@ -2,33 +2,18 @@ import { LinkOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import {
-  Button,
-  Checkbox,
-  Divider,
-  Input,
-  Layout,
-  Modal,
-  Radio,
-  Select,
-  Spin,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Button, Checkbox, Divider, Layout, Radio, Select, Spin, Tooltip, Typography } from 'antd';
 import 'antd/dist/antd.compact.css';
 import queryString from 'query-string';
 import { FC, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 import QueryBuilder, {
-  DefaultRuleGroupType,
-  DefaultRuleGroupTypeIC,
   defaultValidator,
   ExportFormat,
   formatQuery,
   FormatQueryOptions,
   ParameterizedNamedSQL,
   ParameterizedSQL,
-  parseSQL,
   QueryBuilderProps,
   RuleGroupTypeAny,
   RuleGroupTypeIC,
@@ -53,10 +38,9 @@ import {
   styleNameMap,
 } from './constants';
 
-const { TextArea } = Input;
 const { Header, Sider, Content } = Layout;
 const { Option } = Select;
-const { Link, Text, Title } = Typography;
+const { Link, Title } = Typography;
 
 const muiTheme = createTheme();
 const chakraTheme = extendTheme({
@@ -108,7 +92,6 @@ const getOptionsFromHash = (hash: Partial<DemoOptions>): DemoOptions => ({
   validateQuery: (hash.validateQuery ?? `${defaultOptions.validateQuery}`) === 'true',
   independentCombinators:
     (hash.independentCombinators ?? `${defaultOptions.independentCombinators}`) === 'true',
-  enableDragAndDrop: (hash.enableDragAndDrop ?? `${defaultOptions.enableDragAndDrop}`) === 'true',
   disabled: (hash.disabled ?? `${defaultOptions.disabled}`) === 'true',
 });
 
@@ -120,11 +103,6 @@ const App = () => {
   const [queryIC, setQueryIC] = useState(initialQueryIC);
   const [format, setFormat] = useState<ExportFormat>('json_without_ids');
   const [options, setOptions] = useState<DemoOptions>(initialOptions);
-  const [isSQLModalVisible, setIsSQLModalVisible] = useState(false);
-  const [sql, setSQL] = useState(
-    `SELECT *\n  FROM my_table\n WHERE ${formatQuery(initialQuery, 'sql')};`
-  );
-  const [sqlParseError, setSQLParseError] = useState('');
   const [style, setStyle] = useState<StyleName>('default');
   const [copyPermalinkText, setCopyPermalinkText] = useState(permalinkText);
 
@@ -163,7 +141,6 @@ const App = () => {
           'addRuleToNewGroups',
           'validateQuery',
           'independentCombinators',
-          'enableDragAndDrop',
           'disabled',
         ] as (keyof DemoOptions)[]
       ).map(opt => ({
@@ -201,19 +178,6 @@ const App = () => {
   );
 
   const qbWrapperClassName = `with-${style}${options.validateQuery ? ' validateQuery' : ''}`;
-
-  const loadFromSQL = useCallback(() => {
-    try {
-      const q = parseSQL(sql) as DefaultRuleGroupType;
-      const qIC = parseSQL(sql, { independentCombinators: true }) as DefaultRuleGroupTypeIC;
-      setQuery(q);
-      setQueryIC(qIC);
-      setIsSQLModalVisible(false);
-      setSQLParseError('');
-    } catch (err) {
-      setSQLParseError((err as Error).message);
-    }
-  }, [sql]);
 
   const onClickCopyPermalink = async () => {
     try {
@@ -344,7 +308,6 @@ const App = () => {
                 </Tooltip>
               </a>
             </Title>
-            <Button onClick={() => setIsSQLModalVisible(true)}>Load from SQL</Button>
             <Title level={4} style={{ marginTop: '1rem' }}>
               Installation{'\u00a0'}
               <Link href={npmLink} target="_blank">
@@ -392,24 +355,6 @@ const App = () => {
           </Content>
         </Layout>
       </Layout>
-      <Modal
-        title="Load Query From SQL"
-        visible={isSQLModalVisible}
-        onOk={loadFromSQL}
-        onCancel={() => setIsSQLModalVisible(false)}>
-        <TextArea
-          value={sql}
-          onChange={e => setSQL(e.target.value)}
-          spellCheck={false}
-          style={{ height: 200, fontFamily: 'monospace' }}
-        />
-        <Text italic>
-          SQL string can either be the full <Text code>SELECT</Text> statement or the{' '}
-          <Text code>WHERE</Text> clause by itself (without the word &quot;WHERE&quot; -- just the
-          clauses). Semicolon is also optional.
-        </Text>
-        {!!sqlParseError && <pre>{sqlParseError}</pre>}
-      </Modal>
     </>
   );
 };

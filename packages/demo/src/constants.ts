@@ -10,11 +10,9 @@ import type {
 } from 'react-querybuilder/src/types';
 
 const AntDActionElement = lazy(() => import('./components/AntDActionElement'));
-const AntDDragHandle = lazy(() => import('./components/AntDDragHandle'));
 const AntDNotToggle = lazy(() => import('./components/AntDNotToggle'));
 const AntDValueEditor = lazy(() => import('./components/AntDValueEditor'));
 const AntDValueSelector = lazy(() => import('./components/AntDValueSelector'));
-const BootstrapDragHandle = lazy(() => import('./components/BootstrapDragHandle'));
 const BootstrapNotToggle = lazy(() => import('./components/BootstrapNotToggle'));
 const BootstrapValueEditor = lazy(() => import('./components/BootstrapValueEditor'));
 const BulmaActionElement = lazy(() => import('./components/BulmaActionElement'));
@@ -22,12 +20,10 @@ const BulmaNotToggle = lazy(() => import('./components/BulmaNotToggle'));
 const BulmaValueEditor = lazy(() => import('./components/BulmaValueEditor'));
 const BulmaValueSelector = lazy(() => import('./components/BulmaValueSelector'));
 const ChakraActionElement = lazy(() => import('./components/ChakraActionElement'));
-const ChakraDragHandle = lazy(() => import('./components/ChakraDragHandle'));
 const ChakraNotToggle = lazy(() => import('./components/ChakraNotToggle'));
 const ChakraValueEditor = lazy(() => import('./components/ChakraValueEditor'));
 const ChakraValueSelector = lazy(() => import('./components/ChakraValueSelector'));
 const MaterialActionElement = lazy(() => import('./components/MaterialActionElement'));
-const MaterialDragHandle = lazy(() => import('./components/MaterialDragHandle'));
 const MaterialNotToggle = lazy(() => import('./components/MaterialNotToggle'));
 const MaterialValueEditor = lazy(() => import('./components/MaterialValueEditor'));
 const MaterialValueSelector = lazy(() => import('./components/MaterialValueSelector'));
@@ -44,7 +40,6 @@ export interface DemoOptions {
   addRuleToNewGroups: boolean;
   validateQuery: boolean;
   independentCombinators: boolean;
-  enableDragAndDrop: boolean;
   disabled: boolean;
 }
 
@@ -63,7 +58,6 @@ export const defaultOptions: DemoOptions = {
   addRuleToNewGroups: false,
   validateQuery: false,
   independentCombinators: false,
-  enableDragAndDrop: false,
   disabled: false,
 };
 
@@ -121,11 +115,6 @@ export const optionsMetadata: Record<
     label: 'Independent combinators',
     title: 'Combinators between rules can be independently updated',
   },
-  enableDragAndDrop: {
-    link: '/docs/api/querybuilder#enabledraganddrop',
-    label: 'Enable drag-and-drop',
-    title: 'Rules and groups can be reordered and dragged to different groups',
-  },
   disabled: {
     link: '/docs/api/querybuilder#disabled',
     label: 'Disabled',
@@ -158,7 +147,6 @@ export const styleConfigs: Record<StyleName, QueryBuilderProps> = {
       value: 'form-control form-control-sm',
     },
     controlElements: {
-      dragHandle: BootstrapDragHandle,
       notToggle: BootstrapNotToggle,
       valueEditor: BootstrapValueEditor,
     },
@@ -176,7 +164,6 @@ export const styleConfigs: Record<StyleName, QueryBuilderProps> = {
       removeGroupAction: AntDActionElement,
       removeRuleAction: AntDActionElement,
       valueEditor: AntDValueEditor,
-      dragHandle: AntDDragHandle,
     },
   },
   material: {
@@ -192,7 +179,6 @@ export const styleConfigs: Record<StyleName, QueryBuilderProps> = {
       removeGroupAction: MaterialActionElement,
       removeRuleAction: MaterialActionElement,
       valueEditor: MaterialValueEditor,
-      dragHandle: MaterialDragHandle,
     },
   },
   chakra: {
@@ -208,7 +194,6 @@ export const styleConfigs: Record<StyleName, QueryBuilderProps> = {
       removeGroupAction: ChakraActionElement,
       removeRuleAction: ChakraActionElement,
       valueEditor: ChakraValueEditor,
-      dragHandle: ChakraDragHandle,
     },
   },
   bulma: {
